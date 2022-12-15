@@ -4,7 +4,7 @@ using (var reader = new StreamReader("../../../../ModelsWordEnding.txt", System.
 {
     string? line;
     string[] w;
-    while ((line = await reader.ReadLineAsync()) != null) // считываем строчки, у которых начало либо "Мэри,...", либо "спам,..."
+    while ((line = await reader.ReadLineAsync()) != null)
     {
         w = line.ToLower().Replace("ё", "е").Split(" ");
         if (Convert.ToInt32(w[1]) == 300) break;
