@@ -46,6 +46,7 @@ string[] Suffixes = {
         "ек", "чик", "щик", "ышк", "ушк"
 };
 
+
 var select1 = Suffixes
 .Join(End,
 s => 1,
@@ -62,15 +63,11 @@ for (int i = 0; i < End.Length; i++)
     Endings[Suffixes.Length + select1.Length + i] = End[i];
 
 
-Stopwatch time = Stopwatch.StartNew();
-int NumberOfWords = 0;
-
 using (var reader = new StreamReader("../../../../RussianWords.txt", System.Text.Encoding.Default)) // конечный файл со словами и их повторениями
 {
     string? word;
     while ((word = await reader.ReadLineAsync()) != null)
     {
-        NumberOfWords++;
         for (int i = 0; i < Endings.Length; i++)
         {
             string wordTest = word;
@@ -82,23 +79,15 @@ using (var reader = new StreamReader("../../../../RussianWords.txt", System.Text
         }
     }
 }
-Console.WriteLine($"записей в словаре: {ModelsWordEndings.Count}");
-time.Stop();
-Console.WriteLine($"время обработки слов: {time.ElapsedMilliseconds / 1000} seconds");
 
-time.Restart();
 ModelsWordEndings = ModelsWordEndings
     .OrderByDescending(m => m.Value)
     .ToDictionary(m => m.Key, m => m.Value);
-time.Stop();
-Console.WriteLine($"время сортировки словаря: {time.ElapsedMilliseconds / 1000} seconds");
-
 
 foreach (var mod in ModelsWordEndings)
     if ((mod.Value / 19117) < (1 / 10000)) ModelsWordEndings.Remove(mod.Key);
 
 
-time.Restart();
 using (var writer = new StreamWriter("../../../../ModelsWordEnding.txt", false, System.Text.Encoding.Default))
 {
     foreach (var mod in ModelsWordEndings)
@@ -106,17 +95,6 @@ using (var writer = new StreamWriter("../../../../ModelsWordEnding.txt", false, 
         writer.WriteLine($"{mod.Key} {mod.Value}");
     }
 }
-time.Stop();
-Console.WriteLine($"время записи словаря в файл: {time.ElapsedMilliseconds} ms");
-Console.WriteLine($"записей в словаре: {ModelsWordEndings.Count}");
-
-
-
-string s = "анансирующий";
-Console.WriteLine(StemmStemka(ref s));
-
-
-
 
 static bool DeleteEnding(ref string word, string ending) // удаление окончания слова
 {
@@ -170,32 +148,4 @@ void AddModelToDictionary(string model)
     {
         ModelsWordEndings.Add(model, 1);
     }
-}
-
-bool StemmStemka(ref string word)
-{
-    int max = 0;
-    foreach (var mod in ModelsWordEndings) // итерации по массиву окончаний
-    {
-        string wordTest = word;
-        bool flagEqually = true;
-        if (mod.Key.Length < word.Length)
-        {
-            flagEqually = true;
-            for (int j = mod.Key.Length - 1; j >= 0; j--) // итерации по концу слова
-                if (mod.Key[j] != word[word.Length - mod.Key.Length + j])
-                {
-                    flagEqually = false;
-                    break;
-                }
-            if (flagEqually & mod.Key.Length > max & ComplianceBasis(wordTest[..^max]))
-            {
-                max = mod.Key.Length;
-            }
-        }
-    }
-    word = word[..^max];
-    Console.WriteLine($"max {max} | word {word}");
-
-    if (max > 0) return true; return false;
 }
