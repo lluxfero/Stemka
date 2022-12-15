@@ -74,7 +74,6 @@ using (var reader = new StreamReader("../../../../RussianWords.txt", System.Text
             if (DeleteEnding(ref wordTest, Endings[i]) & ComplianceBasis(wordTest))
             {
                 AddModelToDictionary(word[(wordTest.Length - 2)..]);
-
             }
         }
     }
@@ -122,20 +121,21 @@ static bool DeleteEnding(ref string word, string ending) // удаление о�
 
 bool ComplianceBasis(string word) // основа >= 2 и есть хотя бы одна гласная
 {
+    char[] separators = new char[] { ' ', ',', '.', '-', '_', '(', ')', '/', ':', ';', '!', '?', '*', '"', '>', '<', '\'', '`' };
+    bool flagSep = false;
     bool flagCompliance = false;
     for (int i = 0; i < word.Length; i++)
     {
-        for (int j = 0; j < word.Length; j++)
+        for (int j = 0; j < VowelLetters.Length; j++)
         {
-            if (word[i] == word[j])
-            {
-                flagCompliance = true;
-                break;
-            }
+            if (word[i] == VowelLetters[j]) flagCompliance = true;
         }
-        if (flagCompliance) break;
+        for (int j = 0; j < separators.Length; j++)
+        {
+            if (word[i] == separators[j]) flagSep = true;
+        }
     }
-    if (flagCompliance & word.Length >= 2) return true; return false;
+    if (flagCompliance & !flagSep & word.Length >= 2) return true; return false;
 }
 
 void AddModelToDictionary(string model)
