@@ -1,4 +1,7 @@
 ﻿Dictionary<string, int> ModelsWordEndings = new();
+char[] VowelLetters = {
+        'а', 'е', 'и', 'о', 'у', 'ы', 'э', 'ю', 'я'
+};
 
 using (var reader = new StreamReader("../../../../ModelsWordEnding.txt", System.Text.Encoding.Default))
 {
@@ -26,11 +29,12 @@ Console.WriteLine(StemmStemka(s));
 bool ComplianceBasis(string word) // основа >= 2 и есть хотя бы одна гласная
 {
     bool flagCompliance = false;
-    for (int i = 0; i < word.Length; i++)
+    int wlen = word.Length;
+    for (int i = 0; i < wlen; i++)
     {
-        for (int j = 0; j < word.Length; j++)
+        for (int j = 0; j < VowelLetters.Length; j++)
         {
-            if (word[i] == word[j])
+            if (word[i] == VowelLetters[j])
             {
                 flagCompliance = true;
                 break;
@@ -38,30 +42,35 @@ bool ComplianceBasis(string word) // основа >= 2 и есть хотя бы
         }
         if (flagCompliance) break;
     }
-    if (flagCompliance & word.Length >= 2) return true; return false;
+    return (flagCompliance && (wlen >= 2));
 }
 
 string StemmStemka(string word)
 {
     int max = 0;
+    int wlen = word.Length;
     foreach (var model in ModelsWordEndings) // итерации по массиву окончаний
     {
         string wordTest = word;
         bool flagEqually = true;
-        if (model.Key.Length < word.Length)
+        string modelword = model.Key;
+        int mwlen = modelword.Length;
+        if (mwlen < wlen)
         {
             flagEqually = true;
-            for (int j = model.Key.Length - 1; j >= 0; j--) // итерации по концу слова
-                if (model.Key[j] != word[word.Length - model.Key.Length + j])
+            for (int j = mwlen - 1; j >= 0; j--) // итерации по концу слова
+                if (modelword[j] != word[wlen - mwlen + j])
                 {
                     flagEqually = false;
                     break;
                 }
-            if (flagEqually & model.Key.Length > max & ComplianceBasis(wordTest[..^max]))
+            if (flagEqually && mwlen > max && ComplianceBasis(wordTest[..^(max - 2)]))
             {
-                max = model.Key.Length;
+                max = mwlen;
             }
         }
     }
-    return word[..^max];
+    Console.WriteLine(max);
+    Console.WriteLine(max - 2);
+    return word[..^(max - 2)];
 }

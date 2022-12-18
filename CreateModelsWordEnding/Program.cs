@@ -68,6 +68,7 @@ using (var reader = new StreamReader("../../../../RussianWords.txt", System.Text
     string? word;
     while ((word = await reader.ReadLineAsync()) != null)
     {
+        word = word.ToLower().Replace("ё", "е");
         for (int i = 0; i < Endings.Length; i++)
         {
             string wordTest = word;
